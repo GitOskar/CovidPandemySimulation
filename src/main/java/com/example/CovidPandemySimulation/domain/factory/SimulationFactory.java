@@ -18,7 +18,8 @@ public class SimulationFactory {
                 simulationDTO.getMortalityRate(),
                 simulationDTO.getDiseaseDuration(),
                 simulationDTO.getTimeOfDying(),
-                simulationDTO.getDaysOfSimulation());
+                simulationDTO.getDaysOfSimulation(),
+                simulationDTO.getProtectionDuration());
     }
 
 }

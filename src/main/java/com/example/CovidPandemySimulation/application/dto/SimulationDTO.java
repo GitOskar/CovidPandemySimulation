@@ -23,6 +23,7 @@ public class SimulationDTO {
     private int diseaseDuration;
     private int timeOfDying;
     private int daysOfSimulation;
+    private int protectionDuration;
     private List<RecordDTO> recordDTOs;
 
     public SimulationDTO(Simulation simulation)
@@ -35,6 +36,7 @@ public class SimulationDTO {
         this.diseaseDuration = simulation.getDiseaseDuration();
         this.timeOfDying = simulation.getTimeOfDying();
         this.daysOfSimulation = simulation.getDaysOfSimulation();
+        this.protectionDuration = simulation.getProtectionDuration();
         this.recordDTOs = new ArrayList<>();
 
         for (Record record : simulation.getRecords())

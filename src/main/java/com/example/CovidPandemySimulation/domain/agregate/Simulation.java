@@ -33,13 +33,16 @@ public class Simulation extends BaseEntity
     private int timeOfDying;
     @Column(name = "days_of_simulation")
     private int daysOfSimulation;
+    @Column(name = "protection_duration")
+    private int protectionDuration;
     @OneToMany(mappedBy = "simulation", cascade = CascadeType.ALL)
     private List<Record> records;
 
     public Simulation(String name, long populationCount,
                       long initialInfectedNumber, double rNumber,
                       double mortalityRate, int diseaseDuration,
-                      int timeOfDying, int daysOfSimulation) throws SimulationCreationException
+                      int timeOfDying, int daysOfSimulation,
+                      int protectionDuration) throws SimulationCreationException
     {
         this.name = name;
         this.populationCount = populationCount;
@@ -49,14 +52,14 @@ public class Simulation extends BaseEntity
         this.diseaseDuration = diseaseDuration;
         this.timeOfDying = timeOfDying;
         this.daysOfSimulation = daysOfSimulation;
-        //this.records = new ArrayList<>();
+        this.protectionDuration = protectionDuration;
 
-        //validate();
+        validate();
     }
 
     private void validate() throws SimulationCreationException
     {
-        if (populationCount > initialInfectedNumber)
+        if (populationCount < initialInfectedNumber)
             throw new SimulationCreationException("The initial number of infected must not exceed the number of the population");
         if (rNumber < 0.0)
             throw new SimulationCreationException("R number cannot be negative");
@@ -66,20 +69,6 @@ public class Simulation extends BaseEntity
             throw new SimulationCreationException("Infected number cannot exceed the number of population");
         if (timeOfDying > diseaseDuration)
             throw new SimulationCreationException("Healthy person cannot die of a disease");
-    }
-
-    @Override
-    public String toString() {
-        return "Simulation{" +
-                "name='" + name + '\'' +
-                ", populationCount=" + populationCount +
-                ", initialInfectedNumber=" + initialInfectedNumber +
-                ", rNumber=" + rNumber +
-                ", mortalityRate=" + mortalityRate +
-                ", diseaseDuration=" + diseaseDuration +
-                ", timeOfDying=" + timeOfDying +
-                ", daysOfSimulation=" + daysOfSimulation +
-                '}';
     }
 
     public void createRecords()
@@ -94,6 +83,7 @@ public class Simulation extends BaseEntity
          */
         long[] sickPeopleWaitingForRecovery = new long[diseaseDuration];
         long[] sickPeopleWaitingForDeath = new long[timeOfDying];
+        long[] resistancePeopleProtectionDuration = new long[protectionDuration];
 
         sickPeopleWaitingForDeath[0] = Math.round(initialInfectedNumber * mortalityRate);
         sickPeopleWaitingForRecovery[0] = initialInfectedNumber - sickPeopleWaitingForDeath[0];
@@ -108,13 +98,29 @@ public class Simulation extends BaseEntity
             long resistantCount = records.get(i-1).getResistantCount();
             int sickPeopleWaitingForRecoveryIndex = i%diseaseDuration;
             int sickPeopleWaitingForDeathIndex = i%timeOfDying;
+            int resistancePeopleProtectionDurationIndex = i%protectionDuration;
 
             long newInfectedNumber = Math.round(rNumber * infectedCount) - infectedCount;
 
+            /*
+            Too many new infected
+            New restrictions incoming
+            */
+            if (newInfectedNumber > 0.01 * populationCount && !areAnyRestricitons)
+                rNumber /= 3;
 
+            /*
+            People think that they don't need restrictions anymore
+            R number back to previous value
+            */
+            if (newInfectedNumber < 0.001 * populationCount && areAnyRestricitons)
+                rNumber *= 3;
 
             if (newInfectedNumber > susceptibleToInfection)
                 newInfectedNumber = susceptibleToInfection;
+
+            resistantCount -= resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
+            susceptibleToInfection += resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
 
             resistantCount += sickPeopleWaitingForRecovery[sickPeopleWaitingForRecoveryIndex];
             infectedCount -= sickPeopleWaitingForRecovery[sickPeopleWaitingForRecoveryIndex];
@@ -122,6 +128,7 @@ public class Simulation extends BaseEntity
             deathCount += sickPeopleWaitingForDeath[sickPeopleWaitingForDeathIndex];
             infectedCount -= sickPeopleWaitingForDeath[sickPeopleWaitingForDeathIndex];
 
+            resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex] = sickPeopleWaitingForRecovery[sickPeopleWaitingForRecoveryIndex];
             sickPeopleWaitingForDeath[sickPeopleWaitingForDeathIndex] = Math.round(newInfectedNumber * mortalityRate);
             sickPeopleWaitingForRecovery[sickPeopleWaitingForRecoveryIndex] = newInfectedNumber - sickPeopleWaitingForDeath[sickPeopleWaitingForDeathIndex];
 
