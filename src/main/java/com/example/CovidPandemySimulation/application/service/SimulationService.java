@@ -18,7 +18,7 @@ public class SimulationService implements ISimulationService{
     }
 
     @Override
-    public List<Simulation> findByName(String name) {
+    public Simulation findByName(String name) {
         return simulationRepository.findByName(name);
     }
 

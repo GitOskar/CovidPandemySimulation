@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface ISimulationService {
     public Simulation save(Simulation simulation);
-    public List<Simulation> findByName(String name);
+    public Simulation findByName(String name);
     public Iterable<Simulation> findAll();
 }

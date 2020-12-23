@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface SimulationRepository extends CrudRepository<Simulation, Integer> {
-    List<Simulation> findByName(String name);
+    Simulation findByName(String name);
 }

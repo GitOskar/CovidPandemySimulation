@@ -74,8 +74,7 @@ public class Simulation extends BaseEntity
     public void createRecords()
     {
         List<Record> records = new ArrayList<>();
-        /* Initial record */
-        records.add(new Record(initialInfectedNumber, populationCount - initialInfectedNumber, 0, 0, this));
+        records.add(initialRecord());
 
         /*
         Arrays that store information about how many ppl got sick
@@ -101,6 +100,8 @@ public class Simulation extends BaseEntity
             int resistancePeopleProtectionDurationIndex = i%protectionDuration;
 
             long newInfectedNumber = Math.round(rNumber * infectedCount) - infectedCount;
+            if (newInfectedNumber > susceptibleToInfection)
+                newInfectedNumber = susceptibleToInfection;
 
             /*
             Too many new infected
@@ -115,9 +116,6 @@ public class Simulation extends BaseEntity
             */
             if (newInfectedNumber < 0.001 * populationCount && areAnyRestricitons)
                 rNumber *= 3;
-
-            if (newInfectedNumber > susceptibleToInfection)
-                newInfectedNumber = susceptibleToInfection;
 
             resistantCount -= resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
             susceptibleToInfection += resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
@@ -144,5 +142,14 @@ public class Simulation extends BaseEntity
             ));
         }
         this.records = records;
+    }
+
+    private Record initialRecord()
+    {
+        return new Record(initialInfectedNumber,
+                populationCount - initialInfectedNumber,
+                0,
+                0,
+                this);
     }
 }

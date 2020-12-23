@@ -37,13 +37,12 @@ public class SimulationController
 
     @GetMapping
     @ResponseBody
-    public List<SimulationDTO> getByName(@RequestBody String name)
+    public SimulationDTO getByName(@RequestBody String name)
     {
         List<SimulationDTO> simulationDTOs = new ArrayList<>();
 
-        for(Simulation simulation : simulationService.findByName(name))
-            simulationDTOs.add(new SimulationDTO(simulation));
+        return new SimulationDTO(simulationService.findByName(name));
 
-        return simulationDTOs;
+        //return simulationDTOs;
     }
 }
