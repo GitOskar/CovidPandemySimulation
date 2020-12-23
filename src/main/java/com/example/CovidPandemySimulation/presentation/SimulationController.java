@@ -19,6 +19,7 @@ public class SimulationController
     @PostMapping
     public SimulationDTO addSimulation(@RequestBody Simulation simulation)
     {
+        System.out.println(simulation);
         simulation.createRecords();
         return new SimulationDTO(simulationService.save(simulation));
     }
@@ -39,10 +40,7 @@ public class SimulationController
     @ResponseBody
     public SimulationDTO getByName(@RequestBody String name)
     {
-        List<SimulationDTO> simulationDTOs = new ArrayList<>();
-
         return new SimulationDTO(simulationService.findByName(name));
 
-        //return simulationDTOs;
     }
 }

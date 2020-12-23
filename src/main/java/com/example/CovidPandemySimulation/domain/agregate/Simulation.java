@@ -2,6 +2,7 @@ package com.example.CovidPandemySimulation.domain.agregate;
 
 import com.example.CovidPandemySimulation.domain.exception.SimulationCreationException;
 import com.example.CovidPandemySimulation.domain.primitive.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -87,7 +88,7 @@ public class Simulation extends BaseEntity
         sickPeopleWaitingForDeath[0] = Math.round(initialInfectedNumber * mortalityRate);
         sickPeopleWaitingForRecovery[0] = initialInfectedNumber - sickPeopleWaitingForDeath[0];
 
-        boolean areAnyRestricitons = false;
+        boolean areAnyRestrictions = false;
 
         for (int i=1 ; i<daysOfSimulation ; i++)
         {
@@ -107,15 +108,19 @@ public class Simulation extends BaseEntity
             Too many new infected
             New restrictions incoming
             */
-            if (newInfectedNumber > 0.01 * populationCount && !areAnyRestricitons)
+            if (newInfectedNumber > 0.01 * populationCount && !areAnyRestrictions) {
                 rNumber /= 3;
+                areAnyRestrictions = true;
+            }
 
             /*
             People think that they don't need restrictions anymore
             R number back to previous value
             */
-            if (newInfectedNumber < 0.001 * populationCount && areAnyRestricitons)
+            if (newInfectedNumber < 0.001 * populationCount && areAnyRestrictions) {
                 rNumber *= 3;
+                areAnyRestrictions = false;
+            }
 
             resistantCount -= resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
             susceptibleToInfection += resistancePeopleProtectionDuration[resistancePeopleProtectionDurationIndex];
@@ -132,7 +137,6 @@ public class Simulation extends BaseEntity
 
             infectedCount += newInfectedNumber;
             susceptibleToInfection -= newInfectedNumber;
-
             records.add(new Record(
                     infectedCount,
                     susceptibleToInfection,
@@ -151,5 +155,20 @@ public class Simulation extends BaseEntity
                 0,
                 0,
                 this);
+    }
+
+    @Override
+    public String toString() {
+        return "Simulation{" +
+                "name='" + name + '\'' +
+                ", populationCount=" + populationCount +
+                ", initialInfectedNumber=" + initialInfectedNumber +
+                ", rNumber=" + rNumber +
+                ", mortalityRate=" + mortalityRate +
+                ", diseaseDuration=" + diseaseDuration +
+                ", timeOfDying=" + timeOfDying +
+                ", daysOfSimulation=" + daysOfSimulation +
+                ", protectionDuration=" + protectionDuration +
+                '}';
     }
 }
