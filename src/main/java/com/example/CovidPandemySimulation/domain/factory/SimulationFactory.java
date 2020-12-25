@@ -14,7 +14,7 @@ public class SimulationFactory {
                 simulationDTO.getName(),
                 simulationDTO.getPopulationCount(),
                 simulationDTO.getInitialInfectedNumber(),
-                simulationDTO.getRNumber(),
+                simulationDTO.getInfectionRate(),
                 simulationDTO.getMortalityRate(),
                 simulationDTO.getDiseaseDuration(),
                 simulationDTO.getTimeOfDying(),

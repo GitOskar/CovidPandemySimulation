@@ -18,7 +18,7 @@ public class SimulationDTO {
     String name;
     private long populationCount;
     private long initialInfectedNumber;
-    private double rNumber;
+    private double infectionRate;
     private double mortalityRate;
     private int diseaseDuration;
     private int timeOfDying;
@@ -31,7 +31,7 @@ public class SimulationDTO {
         this.name = simulation.getName();
         this.populationCount = simulation.getPopulationCount();
         this.initialInfectedNumber = simulation.getInitialInfectedNumber();
-        this.rNumber = simulation.getRNumber();
+        this.infectionRate = simulation.getInfectionRate();
         this.mortalityRate = simulation.getMortalityRate();
         this.diseaseDuration = simulation.getDiseaseDuration();
         this.timeOfDying = simulation.getTimeOfDying();

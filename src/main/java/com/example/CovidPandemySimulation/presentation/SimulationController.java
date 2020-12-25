@@ -19,7 +19,6 @@ public class SimulationController
     @PostMapping
     public SimulationDTO addSimulation(@RequestBody Simulation simulation)
     {
-        System.out.println(simulation);
         simulation.createRecords();
         return new SimulationDTO(simulationService.save(simulation));
     }
