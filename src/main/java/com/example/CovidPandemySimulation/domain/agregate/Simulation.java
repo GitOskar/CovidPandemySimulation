@@ -109,6 +109,7 @@ public class Simulation extends BaseEntity
             if (newInfectedCount > susceptibleToInfection)
                 newInfectedCount = susceptibleToInfection;
 
+            waitingForDeath += newDyingSimulation(waitingForDeath, newInfectedCount, sickPeopleWaitingForDeath, infectionRateTmp);
             toBeInfected = newInfectedSimulation(toBeInfected, newInfectedCount, peopleWaitingForDisease, infectionRateTmp);
 
             /*
@@ -139,7 +140,6 @@ public class Simulation extends BaseEntity
             infectedCount -= sickPeopleWaitingForDeath[i%timeOfDying];
 
             resistancePeopleProtectionDuration[i%protectionDuration] = sickPeopleWaitingForRecovery[i%diseaseDuration];
-            sickPeopleWaitingForDeath[i%timeOfDying] = Math.round(newInfectedCount * mortalityRate);
             sickPeopleWaitingForRecovery[i%diseaseDuration] = newInfectedCount - sickPeopleWaitingForDeath[i%timeOfDying];
 
             infectedCount += newInfectedCount;
@@ -151,7 +151,6 @@ public class Simulation extends BaseEntity
                     resistantCount,
                     this
             ));
-            System.out.println((i+1) + " " + populationCount + " " + (resistantCount + infectedCount + susceptibleToInfection + deathCount));
         }
         this.records = records;
     }
@@ -167,9 +166,16 @@ public class Simulation extends BaseEntity
 
     private double newInfectedSimulation(double toBeInfected, long newInfectedCount, long[] peopleWaitingForDisease, double infectionRateTmp)
     {
-        toBeInfected += newInfectedCount * infectionRateTmp;
+        toBeInfected += newInfectedCount * infectionRateTmp - newInfectedCount * infectionRateTmp * mortalityRate;
         simulateInfectionRate((long)toBeInfected, peopleWaitingForDisease);
         return toBeInfected - (long)toBeInfected;
+    }
+
+    private double newDyingSimulation(double waitingForDeath, long newInfectedCount, long[] peopleWaitingForDeath, double infectionRateTmp)
+    {
+        waitingForDeath += newInfectedCount * infectionRateTmp * mortalityRate;
+        simulateInfectionRate((long)waitingForDeath, peopleWaitingForDeath);
+        return waitingForDeath - (long)waitingForDeath;
     }
 
     private void simulateInfectionRate(long peopleToBeInfected, long[] peopleWaitingForDisease)
