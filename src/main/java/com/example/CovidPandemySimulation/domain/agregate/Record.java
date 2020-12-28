@@ -42,4 +42,28 @@ public class Record extends BaseEntity
         this.resistantCount = record.getResistantCount();
         this.simulation = record.getSimulation();
     }
+
+    public void addDeaths(long newDeaths)
+    {
+        this.deathCount += newDeaths;
+        this.infectedCount -= newDeaths;
+    }
+
+    public void addInfected(long newInfected)
+    {
+        this.infectedCount += newInfected;
+        this.susceptibleToInfection -= newInfected;
+    }
+
+    public void addResistant(long newResistant)
+    {
+        this.resistantCount += newResistant;
+        this.infectedCount -= newResistant;
+    }
+
+    public void endOfProtection(long newSusceptible)
+    {
+        resistantCount -= newSusceptible;
+        susceptibleToInfection += newSusceptible;
+    }
 }
