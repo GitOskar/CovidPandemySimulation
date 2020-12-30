@@ -4,9 +4,8 @@ import com.example.CovidPandemySimulation.domain.agregate.Simulation;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface SimulationRepository extends CrudRepository<Simulation, Integer> {
     Simulation findByName(String name);
+    void deleteByName(String name);
 }

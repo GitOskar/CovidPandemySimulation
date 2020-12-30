@@ -4,8 +4,7 @@ import com.example.CovidPandemySimulation.domain.agregate.Simulation;
 import com.example.CovidPandemySimulation.infrastructure.persistance.SimulationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class SimulationService implements ISimulationService{
@@ -25,5 +24,30 @@ public class SimulationService implements ISimulationService{
     @Override
     public Iterable<Simulation> findAll() {
         return simulationRepository.findAll();
+    }
+
+    @Override
+    public Simulation update(Simulation simulation) {
+        Simulation simulationFromDB = simulationRepository.findByName(simulation.getName());
+        simulationFromDB.deleteAllRecord();
+
+        simulationFromDB.setProtectionDuration(simulation.getProtectionDuration());
+        simulationFromDB.setInfectionRate(simulation.getInfectionRate());
+        simulationFromDB.setDaysOfSimulation(simulation.getDaysOfSimulation());
+        simulationFromDB.setDiseaseDuration(simulation.getDiseaseDuration());
+        simulationFromDB.setInitialInfectedNumber(simulation.getInitialInfectedNumber());
+        simulationFromDB.setMortalityRate(simulation.getMortalityRate());
+        simulationFromDB.setName(simulation.getName());
+        simulationFromDB.setPopulationCount(simulation.getPopulationCount());
+        simulationFromDB.setTimeOfDying(simulation.getTimeOfDying());
+        simulationFromDB.createRecords();
+
+        return simulationRepository.save(simulationFromDB);
+    }
+
+    @Override
+    @Transactional
+    public void deleteByName(String name) {
+        simulationRepository.deleteByName(name);
     }
 }

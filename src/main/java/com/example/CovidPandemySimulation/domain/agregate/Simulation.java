@@ -9,7 +9,6 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Entity
 @Table(name = "Simulation")
@@ -36,8 +35,12 @@ public class Simulation extends BaseEntity
     private int daysOfSimulation;
     @Column(name = "protection_duration")
     private int protectionDuration;
-    @OneToMany(mappedBy = "simulation", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "simulation", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Record> records;
+    @Transient
+    boolean areAnyRestrictions;
+    @Transient
+    double dailyInfectionRate;
 
     public Simulation(String name, long populationCount,
                       long initialInfectedNumber, double infectionRate,
@@ -74,11 +77,16 @@ public class Simulation extends BaseEntity
             throw new SimulationCreationException("Healthy person cannot die of a disease");
     }
 
+    public void deleteAllRecord()
+    {
+        records.clear();
+    }
+
     public void createRecords()
     {
-        List<Record> records = new ArrayList<>();
+        if(records == null)
+            records = new ArrayList<>();
         records.add(initialRecord());
-
         /*
         Arrays that store information about how many ppl got sick
         The for loop will use dynamic programming
@@ -87,8 +95,8 @@ public class Simulation extends BaseEntity
         long[] sickPeopleWaitingForDeath = new long[timeOfDying];
         long[] resistancePeopleProtection = new long[protectionDuration];
 
-        boolean areAnyRestrictions = false;
-        double dailyInfectionRate = infectionRate / diseaseDuration;
+        areAnyRestrictions = false;
+        dailyInfectionRate = infectionRate / diseaseDuration;
         double newInfected = 0, newDeaths = 0.0;
         sickPeopleWaitingForRecovery[0] = initialInfectedNumber;
 
@@ -121,6 +129,8 @@ public class Simulation extends BaseEntity
             newDeaths += newRecord.getInfectedCount() * dailyInfectionRate * mortalityRate;
             newInfected -= (long) newDeaths;
 
+            createDailyInfectionRate((long) newInfected + (long) newDeaths);
+
             if (newInfected + newDeaths > newRecord.getSusceptibleToInfection()) {
                 newInfected = newRecord.getSusceptibleToInfection();
                 if (newInfected < newDeaths)
@@ -134,24 +144,6 @@ public class Simulation extends BaseEntity
                 }
             }
 
-            /*
-            Too many new infected
-            New restrictions incoming
-            */
-            if (newInfected + newDeaths > 0.01 * populationCount && !areAnyRestrictions) {
-                dailyInfectionRate /= 5;
-                areAnyRestrictions = true;
-            }
-
-            /*
-            People think that they don't need restrictions anymore
-            R number back to previous value
-            */
-            if (newInfected + newDeaths < 0.001 * populationCount && areAnyRestrictions) {
-                dailyInfectionRate *= 5;
-                areAnyRestrictions = false;
-            }
-
             newRecord.addInfected((long) newDeaths);
             sickPeopleWaitingForDeath[i%timeOfDying] = (long) newDeaths;
             newDeaths -= (long) newDeaths;
@@ -162,7 +154,7 @@ public class Simulation extends BaseEntity
 
             records.add(newRecord);
         }
-        this.records = records;
+        //this.records = records;
     }
 
     private Record initialRecord()
@@ -172,5 +164,26 @@ public class Simulation extends BaseEntity
                 0,
                 0,
                 this);
+    }
+
+    private void createDailyInfectionRate(long newInfected)
+    {
+         /*
+            Too many new infected
+            New restrictions incoming
+            */
+        if (newInfected > 0.01 * populationCount && !areAnyRestrictions) {
+            areAnyRestrictions = true;
+            dailyInfectionRate /= 5;
+        }
+
+            /*
+            People think that they don't need restrictions anymore
+            R number back to previous value
+            */
+        if (newInfected < 0.001 * populationCount && areAnyRestrictions) {
+            dailyInfectionRate *= 5;
+            areAnyRestrictions = false;
+        }
     }
 }

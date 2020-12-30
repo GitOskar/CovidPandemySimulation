@@ -40,6 +40,17 @@ public class SimulationController
     public SimulationDTO getByName(@RequestBody String name)
     {
         return new SimulationDTO(simulationService.findByName(name));
+    }
 
+    @PutMapping
+    public SimulationDTO updateByName(@RequestBody Simulation simulation)
+    {
+        return new SimulationDTO(simulationService.update(simulation));
+    }
+
+    @DeleteMapping
+    public void deleteByName(@RequestBody String name)
+    {
+        simulationService.deleteByName(name);
     }
 }
