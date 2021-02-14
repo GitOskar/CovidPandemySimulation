@@ -24,7 +24,6 @@ public class SimulationController
     }
 
     @GetMapping("/all")
-    @ResponseBody
     public List<SimulationDTO> getAll()
     {
         List<SimulationDTO> simulationDTOs = new ArrayList<>();
@@ -36,7 +35,6 @@ public class SimulationController
     }
 
     @GetMapping
-    @ResponseBody
     public SimulationDTO getByName(@RequestBody String name)
     {
         return new SimulationDTO(simulationService.findByName(name));

@@ -125,6 +125,7 @@ public class Simulation extends BaseEntity
             resistancePeopleProtection[i%protectionDuration] = sickPeopleWaitingForRecovery[i%diseaseDuration];
             sickPeopleWaitingForRecovery[i%diseaseDuration] = 0;
 
+
             newInfected += newRecord.getInfectedCount() * dailyInfectionRate;
             newDeaths += newRecord.getInfectedCount() * dailyInfectionRate * mortalityRate;
             newInfected -= (long) newDeaths;
@@ -154,7 +155,6 @@ public class Simulation extends BaseEntity
 
             records.add(newRecord);
         }
-        //this.records = records;
     }
 
     private Record initialRecord()
